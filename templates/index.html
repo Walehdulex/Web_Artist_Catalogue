@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Artist Catalog Search</title>
+    <style>
+         video {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            min-width: 100%;
+            min-height: 100%;
+            width: auto;
+            height: auto;
+            z-index: -1;
+            transform: translateX(-50%) translateY(-50%);
+        }
+        body {
+            color: red;
+            {#background-image: url('https://img.freepik.com/free-photo/white-headphones-with-copy-space_23-2148369330.jpg?w=996&t=st=1702642476~exp=1702643076~hmac=b4d7f7eac10f8057aefecd9e71598b1d10d1009ecb33f20913234f42aa433aff');#}
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            text-align: left;
+        }
+        .artist {
+            text-align: center;
+            margin: 20px;
+}
+
+        .artist img {
+            max-width: 100%;  /* Set maximum width to 100% of the container */
+            max-height: 150px; /* Set maximum height to the desired value */
+            border-radius: 5px;
+}
+         h1 {
+            color: #333;
+            text-align: center; /* Center the title */
+        }
+
+        form {
+            margin-top: 20px;
+            display: flex;
+            justify-content: center; /* Center the form */
+        }
+
+        label {
+            font-size: 18px;
+            margin-right: 10px;
+        }
+
+        input {
+            padding: 10px;
+            font-size: 16px;
+        }
+
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            background-color: #007BFF;
+            color: #fff;
+            border: none;
+            cursor: pointer;
+        }
+
+        h2 {
+            margin-top: 20px;
+            color: #333;
+            text-align: left; /* Align the search history to the left */
+        }
+
+        ul {
+            list-style-type: none;
+            padding: 0;
+            text-align: left; /* Align the search history to the left */
+        }
+
+        li {
+            margin: 10px 0;
+        }
+
+        p {
+            font-family: "Arial Black";
+            color: red;
+        }
+
+        .result-container{
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-around;
+        }
+
+        .result-box {
+            width: 300px;
+            border: 1px solid #ddd;
+            padding: 10px;
+            margin: 10px;
+            border-radius: 5px;
+            background-color: #f9f9f9;
+        }
+
+        .result-box h3 {
+            color: #333;
+            margin-bottom: 5px;
+        }
+
+        .result-box p {
+            margin: 0;
+        }
+
+        .result-box a {
+            text-decoration: none;
+            color: #007BFF;
+        }
+
+        #notInCatalogueMessage{
+            display: none;
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        header {
+            background-color: #ffffff;
+            text-align: center;
+
+        }
+
+        footer{
+            background-color: #333;
+            color:#fff;
+            text-align:center;
+            margin-top: 20px;
+            color:#fff;
+
+        }
+    </style>
+</head>
+<body>
+ <!-- Video element for the background -->
+    <video autoplay loop muted>
+        <source src="https://player.vimeo.com/external/217438952.sd.mp4?s=8f87cfbc325ee8ed2505563c880e0dc3a14d1f88&profile_id=164&oauth2_token_id=57447761" type="video/mp4">
+        <!-- Add additional source elements for different video formats (e.g., WebM, Ogg) -->
+        Your browser does not support the video tag.
+    </video>
+ <header>
+        <h1>Artist Catalog</h1>
+    </header>
+
+    <form method="post">
+        <label for="user_input">Search for an artist or genre:</label>
+        <input type="text" name="user_input" id="user_input" required placeholder="Enter search word">
+        <button type="submit">Search</button>
+    </form>
+
+    <p id="notInCatalogueMessage" style="display: none;">Not in catalogue</p>
+    <div class="result-container">
+        {% if search_results %}
+            {% for result in search_results %}
+                <div class="artist result-box">
+                    <img src="{{ result['image_url'] }}" alt="{{ result['artist'] }} Image">
+                    <h2>{{ result['artist'] }}</h2>
+
+                    <div class="result-box">
+                        <h3>{{ result.artist }}</h3>
+                        <p>Genre: {{ result.genre }}</p>
+                        <p>Rating: {{ result.rating }}</p>
+
+                        {% if result.songs %}
+                            <h4>Songs:</h4>
+                            <ul>
+                                {% for song in result.songs %}
+                                    <li><a href="https://www.youtube.com/watch?v={{ song.youtube_id }}" target="_blank">{{ song.title }}</a></li>
+                                {% endfor %}
+                            </ul>
+                        {% endif %}
+
+                        {% if result.albums %}
+                            <h4>Albums:</h4>
+                            <ul>
+                                {% for album in result.albums %}
+                                    <li><a href="https://www.youtube.com/watch?v={{ album.youtube_id }}" target="_blank">{{ album.title }}</a></li>
+                                {% endfor %}
+                            </ul>
+                        {% endif %}
+                    </div>
+                </div>
+            {% endfor %}
+        {% else %}
+            <script>
+                // Call this function when there are no search results
+                function showNotInCatalogueMessage() {
+                    const notInCatalogueMessage = document.getElementById('notInCatalogueMessage');
+                    notInCatalogueMessage.style.display = 'block';
+                }
+
+                // Show the "Not in catalogue" message
+                showNotInCatalogueMessage();
+            </script>
+        {% endif %}
+    </div>
+
+     <footer>
+        <p>&copy; 2023 Artist Catalog. All rights reserved.</p>
+    </footer>
+<script>
+    const searchForm = document.querySelector('form');
+    const resultContainer = document.getElementById('resultContainer');
+    const notInCatalogueMessage = document.getElementById('notInCatalogueMessage');
+
+    searchForm.addEventListener('submit', function (event) {
+        const userInput = document.getElementById('user_input').value.trim();
+
+        if (!userInput) {
+            event.preventDefault();
+            alert('Please enter an artist or genre before searching.');
+        } else {
+            // Clear previous search results and show "Not in catalogue" message
+            resultContainer.innerHTML = '';
+            notInCatalogueMessage.style.display = 'block';
+        }
+    });
+
+    // Call this function when there are no search results
+    function showNotInCatalogueMessage() {
+        notInCatalogueMessage.style.display = 'block';
+    }
+
+   // Check if there are no search results and display the message
+const searchResultsExist = {{ search_results|length > 0}};
+if (searchResultsExist) {
+    // If there are search results, hide the "Not in catalogue" message
+    notInCatalogueMessage.style.display = 'none';
+} else {
+    // If there are no search results, show the "Not in catalogue" message
+    showNotInCatalogueMessage();
+}
+
+</script>
+</body>
+</html>
+
+
+
+{# <div class="result-container">#}
+{#        {% for result in search_results %}#}
+{#        <div class="artist result-box">#}
+{#            <img src="{{ result['image_url'] }}" alt="{{ result['artist'] }} Image">#}
+{#            <h2>{{ result['artist'] }}</h2>#}
+{##}
+{#        <div class="result-box">#}
+{#             <h3>{{ result.artist }}</h3>#}
+{#             <p>Genre: {{ result.genre }}</p>#}
+{#             <p>Rating: {{ result.rating }}</p>#}
+{##}
+{#             {% if result.songs %}#}
+{#             <h4>Songs:</h4>#}
+{#             <ul>#}
+{#                {% for song in result.songs %}#}
+{#                   <li><a href="https://www.youtube.com/watch?v={{ song.youtube_id }}" target="_blank">{{ song.title }}</a></li>#}
+{#                {% endfor %}#}
+{#            </ul>#}
+{#        {% endif %}#}
+{##}
+{#        {% if result.albums %}#}
+{#            <h4>Albums:</h4>#}
+{#            <ul>#}
+{#                {% for album in result.albums %}#}
+{#                   <li> <a href="https://www.youtube.com/watch?v={{ album.youtube_id }}" target="_blank">{{ album.title }}</a></li>#}
+{#                {% endfor %}#}
+{#            </ul>#}
+{#        {% else %}#}
+{#        {% endif %}#}
+{#        </div>#}
+{#       </div>#}
+{#    {% endfor %}#}
+{#    </div>#}
